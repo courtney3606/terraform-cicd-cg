@@ -141,13 +141,14 @@ resource "aws_autoscaling_group" "cicd_asg" {
   ]
 
 
-mixed_instances_policy {
-  launch_template {
-    launch_template_specification {
-      launch_template_id = aws_launch_template.cicdlt.id
+  mixed_instances_policy {
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.cicdlt.id
+      }
     }
   }
-}}
+}
 
 resource "aws_launch_template" "cicdbastionlt" {
   count         = var.public_sn_count
@@ -164,12 +165,14 @@ resource "aws_autoscaling_group" "cicd_bastion_asg" {
   health_check_type  = "EC2"
 
   mixed_instances_policy {
-  launch_template {
-    launch_template_specification {
-      launch_template_id = aws_launch_template.cicdbastionlt.id
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.cicdbastionlt.id
+      }
     }
   }
-}}
+}
+
 
 # security groups
 resource "aws_security_group" "cicd_bastion_sg" {
