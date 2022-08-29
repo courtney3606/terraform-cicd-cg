@@ -147,7 +147,7 @@ mixed_instances_policy {
       launch_template_id = aws_launch_template.cicdlt.id
     }
   }
-}
+}}
 
 resource "aws_launch_template" "cicdbastionlt" {
   count         = var.public_sn_count
@@ -169,7 +169,7 @@ resource "aws_autoscaling_group" "cicd_bastion_asg" {
       launch_template_id = aws_launch_template.cicdbastionlt.id
     }
   }
-}
+}}
 
 # security groups
 resource "aws_security_group" "cicd_bastion_sg" {
