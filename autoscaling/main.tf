@@ -144,7 +144,7 @@ resource "aws_autoscaling_group" "cicd_asg" {
   mixed_instances_policy {
     launch_template {
       launch_template_specification {
-        launch_template_id = aws_launch_template.cicdlt.id
+        launch_template_id = aws_launch_template.cicdlt[count.index]
       }
     }
   }
@@ -167,7 +167,7 @@ resource "aws_autoscaling_group" "cicd_bastion_asg" {
   mixed_instances_policy {
     launch_template {
       launch_template_specification {
-        launch_template_id = aws_launch_template.cicdbastionlt.id
+        launch_template_id = aws_launch_template.cicdbastionlt[count.index]
       }
     }
   }
