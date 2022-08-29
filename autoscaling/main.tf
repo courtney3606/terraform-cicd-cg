@@ -121,7 +121,6 @@ resource "aws_route_table_association" "private_tableassc" {
 
 
 resource "aws_launch_template" "cicdlt" {
-  count         = var.private_sn_count
   name_prefix   = "cicdlt"
   image_id      = "ami-090fa75af13c156b4"
   instance_type = "t2.micro"
@@ -144,14 +143,13 @@ resource "aws_autoscaling_group" "cicd_asg" {
   mixed_instances_policy {
     launch_template {
       launch_template_specification {
-        launch_template_id = aws_launch_template.cicdlt[count.index]
+        launch_template_id = aws_launch_template.cicdlt.id
       }
     }
   }
 }
 
 resource "aws_launch_template" "cicdbastionlt" {
-  count         = var.public_sn_count
   name_prefix   = "cicdbastionlt"
   image_id      = "ami-090fa75af13c156b4"
   instance_type = "t2.micro"
@@ -167,7 +165,7 @@ resource "aws_autoscaling_group" "cicd_bastion_asg" {
   mixed_instances_policy {
     launch_template {
       launch_template_specification {
-        launch_template_id = aws_launch_template.cicdbastionlt[count.index]
+        launch_template_id = aws_launch_template.cicdbastionlt.id
       }
     }
   }
