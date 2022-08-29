@@ -19,7 +19,7 @@ resource "aws_vpc" "cicd_myvpc" {
 resource "aws_subnet" "sub_public" {
   count                   = var.public_sub_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              = var.public_cidrs
+  cidr_block              = var.public_cidrs[count.index]
   map_public_ip_on_launch = true
 
   tags = {
@@ -31,7 +31,7 @@ resource "aws_subnet" "sub_public" {
 resource "aws_subnet" "sub_private" {
   count                   = var.private_sub_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              = var.private_cidrs
+  cidr_block              = var.private_cidrs[count.index]
   map_public_ip_on_launch = false
 
   tags = {
