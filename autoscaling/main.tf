@@ -113,7 +113,7 @@ resource "aws_route_table" "cg_pri_rtable" {
 
 resource "aws_route_table_association" "private_tableassc" {
   depends_on     = [aws_route_table.cg_pri_rtable]
-  subnet_id      = aws_subnet.sub_private.*.id[count.index]
+  subnet_id      = aws_subnet.sub_private.*.id
   route_table_id = aws_route_table.cg_pri_rtable.id
 }
 
@@ -143,7 +143,7 @@ resource "aws_autoscaling_group" "cicd_asg" {
 
 
   launch_template {
-    id      = aws_launch_template.cicd_lt.id
+    id      = aws_launch_template.cicd_lt.*.id
     version = "$Latest"
   }
 }
@@ -163,7 +163,7 @@ resource "aws_autoscaling_group" "cicd_bastion_asg" {
   health_check_type  = "EC2"
 
   launch_template {
-    id      = aws_launch_template.cicd_bastion_lt[count.index]
+    id      = aws_launch_template.cicd_bastion_lt
     version = "$Latest"
   }
 }
@@ -220,7 +220,7 @@ resource "aws_security_group" "cicd_priv_sg" {
 
 #CREATE ALB targeting Web Server ASG
 resource "aws_lb" "cicd_lb" {
-  name               = "cicd_lb"
+  name               = "cicd-lb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
@@ -240,7 +240,7 @@ resource "aws_lb_target_group" "cicd_priv_tg" {
   vpc_id      = aws_vpc.cicd_myvpc.id
 }
 resource "aws_lb_listener" "cicd_lb_listener" {
-  loan_balancer_arn = aws_lb.cicd_lb.arn
+  load_balancer_arn = aws_lb.cicd_lb.arn
   port              = 80
   protocol          = "TCP"
   default_action {
