@@ -94,7 +94,7 @@ resource "aws_nat_gateway" "pri-natgw1" {
   depends_on        = [aws_eip.cg-eip]
   allocation_id     = aws_eip.cg-eip.id
   connectivity_type = "private"
-  subnet_id         = "aws_subnet.sub_private.*.id"
+  subnet_id         = "aws_subnet.sub_private.id"
 }
 
 resource "aws_route_table" "cg_pri_rtable" {
@@ -143,7 +143,9 @@ resource "aws_autoscaling_group" "cicd_asg" {
 
 
   launch_template {
-    version = "$Latest"
+   launch_template_specification {
+        launch_template_id = aws_launch_template.cicdlt.id
+      }
   }
 }
 
@@ -162,7 +164,9 @@ resource "aws_autoscaling_group" "cicd_bastion_asg" {
   health_check_type  = "EC2"
 
   launch_template {
-    version = "$Latest"
+  launch_template_specification {
+        launch_template_id = aws_launch_template.cicdbastionlt.id
+      }
   }
 }
 
