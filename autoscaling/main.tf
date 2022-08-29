@@ -94,7 +94,7 @@ resource "aws_nat_gateway" "pri-natgw1" {
   depends_on        = [aws_eip.cg-eip]
   allocation_id     = aws_eip.cg-eip.id
   connectivity_type = "private"
-  subnet_id         = "aws_subnet.sub_private.id"
+  subnet_id         = aws_subnet.sub_private.*.id[count.index]
 }
 
 resource "aws_route_table" "cg_pri_rtable" {
@@ -134,11 +134,6 @@ resource "aws_autoscaling_group" "cicd_asg" {
   default_cooldown          = 180
   health_check_grace_period = 180
   health_check_type         = "EC2"
-
-  target_group_arns = [
-    aws_lb_target_group.cicd_priv_tg.arn
-  ]
-
 
   mixed_instances_policy {
     launch_template {
