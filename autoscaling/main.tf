@@ -2,6 +2,11 @@
 
 data "aws_availability_zones" "available" {}
 
+resource "random_shuffle" "az_list" {
+  input        = data.aws_availability_zones.available.names
+  result_count = var.max_subnets
+}
+
 #CREATE AN AWS VPC
 resource "aws_vpc" "cicd_myvpc" {
   cidr_block           = var.public_cidrs
@@ -20,6 +25,7 @@ resource "aws_subnet" "sub_public" {
   count                   = var.public_sn_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.public_cidrs[count.index]
+  availability_zone       = random_shuffle.az_list.result[count.index]
   map_public_ip_on_launch = true
 
   tags = {
@@ -32,6 +38,7 @@ resource "aws_subnet" "sub_private" {
   count                   = var.private_sn_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.private_cidrs[count.index]
+  availability_zone       = random_shuffle.az_list.result[count.index]
   map_public_ip_on_launch = false
 
   tags = {
