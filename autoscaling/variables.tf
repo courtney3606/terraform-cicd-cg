@@ -10,5 +10,9 @@ variable "private_cidrs" {
   }
   
   variable "private_sn_count" {
-  type= number
+  type = number
+ }
+ 
+ variable "max_subnets" {
+   type =number
  }
