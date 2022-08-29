@@ -1,0 +1,243 @@
+# ---autoscaling/main.tf ---
+
+data "aws_availability_zones" "available" {}
+
+#CREATE AN AWS VPC
+resource "aws_vpc" "cicd_myvpc" {
+  cidr_block           = var.public_cidrs
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  instance_tenancy     = "default"
+
+  tags = {
+    Name = "cicd_myvpc"
+  }
+}
+
+
+#CREATE 3 public subnets in different AZ's
+resource "aws_subnet" "sub_public" {
+  count                   = var.public_sub_count
+  vpc_id                  = aws_vpc.cicd_myvpc.id
+  cidr_block              = var.public_cidrs
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "sub_public_${count.index + 1}"
+  }
+}
+
+#CREATE 3 private subnets in different AZ's
+resource "aws_subnet" "sub_private" {
+  count                   = var.private_sub_count
+  vpc_id                  = aws_vpc.cicd_myvpc.id
+  cidr_block              = var.private_cidrs
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "sub_private_${count.index + 1}"
+  }
+}
+
+
+
+#CREATE an Internet Gateway that connects to the web/public tier for the VPC
+resource "aws_internet_gateway" "cg_igw" {
+  vpc_id = aws_vpc.cicd_myvpc.id
+
+  tags = {
+    Name = "cg_igw"
+  }
+}
+
+
+
+#CREATE route table for association with public/web tier
+resource "aws_route_table" "cg_pub_rtable" {
+  vpc_id = aws_vpc.cicd_myvpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0" #open to all routes
+    gateway_id = aws_internet_gateway.cg_igw.id
+  }
+
+  tags = {
+    Name = "cg_pub_rtable"
+  }
+}
+
+
+#CREATE route association for  public subnets and route table
+resource "aws_route_table_association" "public_tableassc" {
+  count          = var.public_sub_count
+  subnet_id      = aws_subnet.sub_public.*.id[count.index]
+  route_table_id = aws_route_table.cg_pub_rtable.id
+}
+
+
+
+
+#CREATE Elastic IP to associate with Nat Gateway in the private subnets
+resource "aws_eip" "cg-eip" {
+  vpc = true
+}
+
+#CREATE NAT GATEWAY FOR PRIVATE SUBNETS
+resource "aws_nat_gateway" "pri-natgw1" {
+  depends_on        = [aws_eip.cg-eip]
+  allocation_id     = aws_eip.cg-eip.id
+  connectivity_type = "private"
+  subnet_id         = aws_subnet.sub_private.*.id[count.index]
+}
+
+resource "aws_route_table" "cg_pri_rtable" {
+  depends_on = [aws_nat_gateway.pri-natgw1]
+  vpc_id     = aws_vpc.cicd_myvpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.pri-natgw1.id
+  }
+
+  tags = {
+    Name = "cg_pri_rtable"
+  }
+}
+
+resource "aws_route_table_association" "private_tableassc" {
+  depends_on     = [aws_route_table.cg_pri_rtable]
+  subnet_id      = aws_subnet.sub_private.*.id[count.index]
+  route_table_id = aws_route_table.cg_pri_rtable.id
+}
+
+#autoscaling group for web server
+
+
+resource "aws_launch_template" "cicd_lt" {
+  count         = var.private_sub_count
+  name_prefix   = "cicd_lt"
+  image_id      = "ami-090fa75af13c156b4"
+  instance_type = "t2.micro"
+}
+
+resource "aws_autoscaling_group" "cicd_asg" {
+  availability_zones        = data.aws_availability_zones.available.names
+  desired_capacity          = var.private_sub_count
+  max_size                  = var.private_sub_count
+  min_size                  = var.private_sub_count
+  default_cooldown          = 180
+  health_check_grace_period = 180
+  health_check_type         = "EC2"
+
+  target_group_arns = [
+    aws_lb_target_group.cicd_priv_tg.arn
+  ]
+
+
+
+  launch_template {
+    id      = aws_launch_template.cicd_lt.id
+    version = "$Latest"
+  }
+}
+
+resource "aws_launch_template" "cicd_bastion_lt" {
+  count         = var.public_sub_count
+  name_prefix   = "cicd_bastion_lt"
+  image_id      = "ami-090fa75af13c156b4"
+  instance_type = "t2.micro"
+}
+
+resource "aws_autoscaling_group" "cicd_bastion_asg" {
+  availability_zones = data.aws_availability_zones.available.names
+  desired_capacity   = var.public_sub_count
+  max_size           = var.public_sub_count
+  min_size           = var.public_sub_count
+  health_check_type  = "EC2"
+
+  launch_template {
+    id      = aws_launch_template.cicd_bastion_lt.id
+    version = "$Latest"
+  }
+}
+
+# security groups
+resource "aws_security_group" "cicd_bastion_sg" {
+  vpc_id     = aws_vpc.cicd_myvpc.id
+  depends_on = [aws_route_table.cg_pub_rtable]
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = cicd_bastion_sg
+  }
+}
+
+resource "aws_security_group" "cicd_priv_sg" {
+  vpc_id     = aws_vpc.cicd_myvpc.id
+  depends_on = [aws_route_table.cg_pri_rtable]
+
+  ingress {
+    description = "WebServerSG"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = cicd_priv_sg
+  }
+}
+
+
+
+
+#CREATE ALB targeting Web Server ASG
+resource "aws_lb" "cicd_lb" {
+  name               = "cicd_lb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.cicd_priv_sg.id]
+
+  enable_deletion_protection = true
+
+  tags = {
+    Environment = "cicd_lb"
+  }
+}
+
+resource "aws_lb_target_group" "cicd_priv_tg" {
+  name        = "cicd_priv_tg"
+  target_type = "alb"
+  port        = 80
+  protocol    = "TCP"
+  vpc_id      = aws_vpc.cicd_myvpc.id
+}
+resource "aws_lb_listener" "cicd_lb_listener" {
+  loan_balancer_arn = aws_lb.cicd_lb.arn
+  port              = 80
+  protocol          = "TCP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.cicd_priv_tg.arn
+  }
+}
