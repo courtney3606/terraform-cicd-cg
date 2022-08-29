@@ -120,9 +120,9 @@ resource "aws_route_table_association" "private_tableassc" {
 #autoscaling group for web server
 
 
-resource "aws_launch_template" "cicd-lt" {
+resource "aws_launch_template" "cicdlt" {
   count         = var.private_sn_count
-  name_prefix   = "cicd-lt"
+  name_prefix   = "cicdlt"
   image_id      = "ami-090fa75af13c156b4"
   instance_type = "t2.micro"
 }
@@ -143,14 +143,14 @@ resource "aws_autoscaling_group" "cicd_asg" {
 
 
   launch_template {
-    id      = "aws_launch_template.cicd-lt"
+    id      = "aws_launch_template.cicdlt"
     version = "$Latest"
   }
 }
 
-resource "aws_launch_template" "cicd-bastion-lt" {
+resource "aws_launch_template" "cicdbastionlt" {
   count         = var.public_sn_count
-  name_prefix   = "cicd-bastion-lt"
+  name_prefix   = "cicdbastionlt"
   image_id      = "ami-090fa75af13c156b4"
   instance_type = "t2.micro"
 }
@@ -163,7 +163,7 @@ resource "aws_autoscaling_group" "cicd_bastion_asg" {
   health_check_type  = "EC2"
 
   launch_template {
-    id      = "aws_launch_template.cicd-bastion-lt"
+    id      = "aws_launch_template.cicdbastionlt"
     version = "$Latest"
   }
 }
