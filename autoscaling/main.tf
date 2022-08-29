@@ -143,7 +143,6 @@ resource "aws_autoscaling_group" "cicd_asg" {
 
 
   launch_template {
-    launch_template_id      = "aws_launch_template.cicdlt"
     version = "$Latest"
   }
 }
@@ -163,7 +162,6 @@ resource "aws_autoscaling_group" "cicd_bastion_asg" {
   health_check_type  = "EC2"
 
   launch_template {
-    launch_template_id      = "aws_launch_template.cicdbastionlt"
     version = "$Latest"
   }
 }
