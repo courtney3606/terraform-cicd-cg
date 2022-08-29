@@ -94,7 +94,7 @@ resource "aws_nat_gateway" "pri-natgw1" {
   depends_on        = [aws_eip.cg-eip]
   allocation_id     = aws_eip.cg-eip.id
   connectivity_type = "private"
-  subnet_id         = aws_subnet.sub_private.*.id[count.index]
+  subnet_id         = aws_subnet.sub_private.*.id
 }
 
 resource "aws_route_table" "cg_pri_rtable" {
@@ -163,7 +163,7 @@ resource "aws_autoscaling_group" "cicd_bastion_asg" {
   health_check_type  = "EC2"
 
   launch_template {
-    id      = aws_launch_template.cicd_bastion_lt.id[count.index]
+    id      = aws_launch_template.cicd_bastion_lt[count.index]
     version = "$Latest"
   }
 }
@@ -188,7 +188,7 @@ resource "aws_security_group" "cicd_bastion_sg" {
   }
 
   tags = {
-    Name = cicd_bastion_sg
+    Name = "cicd-bastion-sg"
   }
 }
 
@@ -211,7 +211,7 @@ resource "aws_security_group" "cicd_priv_sg" {
   }
 
   tags = {
-    Name = cicd_priv_sg
+    Name = "cicd-priv-sg"
   }
 }
 
@@ -233,7 +233,7 @@ resource "aws_lb" "cicd_lb" {
 }
 
 resource "aws_lb_target_group" "cicd_priv_tg" {
-  name        = "cicd_priv_tg"
+  name        = "cicd-priv-tg"
   target_type = "alb"
   port        = 80
   protocol    = "TCP"
