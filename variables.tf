@@ -8,10 +8,3 @@ variable "private_cidrs" {
   default = ["10.0.2.0/24", "10.0.4.0/24", "10.0.6.0/24"]
   }
   
-  variable "public_sn_count" {
-  type = number
-  }
-  
-  variable "private_sn_count" {
-  type= number
- }
