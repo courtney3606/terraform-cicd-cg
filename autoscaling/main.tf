@@ -17,7 +17,7 @@ resource "aws_vpc" "cicd_myvpc" {
 
 #CREATE 3 public subnets in different AZ's
 resource "aws_subnet" "sub_public" {
-  count                   = var.public_sub_count
+  count                   = var.public_sn_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.public_cidrs[count.index]
   map_public_ip_on_launch = true
@@ -29,7 +29,7 @@ resource "aws_subnet" "sub_public" {
 
 #CREATE 3 private subnets in different AZ's
 resource "aws_subnet" "sub_private" {
-  count                   = var.private_sub_count
+  count                   = var.private_sn_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.private_cidrs[count.index]
   map_public_ip_on_launch = false
@@ -69,7 +69,7 @@ resource "aws_route_table" "cg_pub_rtable" {
 
 #CREATE route association for  public subnets and route table
 resource "aws_route_table_association" "public_tableassc" {
-  count          = var.public_sub_count
+  count          = var.public_sn_count
   subnet_id      = aws_subnet.sub_public.*.id[count.index]
   route_table_id = aws_route_table.cg_pub_rtable.id
 }
@@ -114,7 +114,7 @@ resource "aws_route_table_association" "private_tableassc" {
 
 
 resource "aws_launch_template" "cicd_lt" {
-  count         = var.private_sub_count
+  count         = var.private_sn_count
   name_prefix   = "cicd_lt"
   image_id      = "ami-090fa75af13c156b4"
   instance_type = "t2.micro"
@@ -122,9 +122,9 @@ resource "aws_launch_template" "cicd_lt" {
 
 resource "aws_autoscaling_group" "cicd_asg" {
   availability_zones        = data.aws_availability_zones.available.names
-  desired_capacity          = var.private_sub_count
-  max_size                  = var.private_sub_count
-  min_size                  = var.private_sub_count
+  desired_capacity          = var.private_sn_count
+  max_size                  = var.private_sn_count
+  min_size                  = var.private_sn_count
   default_cooldown          = 180
   health_check_grace_period = 180
   health_check_type         = "EC2"
@@ -142,7 +142,7 @@ resource "aws_autoscaling_group" "cicd_asg" {
 }
 
 resource "aws_launch_template" "cicd_bastion_lt" {
-  count         = var.public_sub_count
+  count         = var.public_sn_count
   name_prefix   = "cicd_bastion_lt"
   image_id      = "ami-090fa75af13c156b4"
   instance_type = "t2.micro"
@@ -150,9 +150,9 @@ resource "aws_launch_template" "cicd_bastion_lt" {
 
 resource "aws_autoscaling_group" "cicd_bastion_asg" {
   availability_zones = data.aws_availability_zones.available.names
-  desired_capacity   = var.public_sub_count
-  max_size           = var.public_sub_count
-  min_size           = var.public_sub_count
+  desired_capacity   = var.public_sn_count
+  max_size           = var.public_sn_count
+  min_size           = var.public_sn_count
   health_check_type  = "EC2"
 
   launch_template {
