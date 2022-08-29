@@ -9,7 +9,7 @@ resource "random_shuffle" "az_list" {
 
 #CREATE AN AWS VPC
 resource "aws_vpc" "cicd_myvpc" {
-  cidr_block           = var.public_cidrs
+  cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
   instance_tenancy     = "default"
@@ -163,7 +163,7 @@ resource "aws_autoscaling_group" "cicd_bastion_asg" {
   health_check_type  = "EC2"
 
   launch_template {
-    id      = aws_launch_template.cicd_bastion_lt.id
+    id      = aws_launch_template.cicd_bastion_lt.id[count.index]
     version = "$Latest"
   }
 }
