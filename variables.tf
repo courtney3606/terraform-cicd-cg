@@ -12,6 +12,6 @@ variable "private_cidrs" {
   type = number
   }
   
-  variable "public_sn_count" {
+  variable "private_sn_count" {
   type= number
   }
