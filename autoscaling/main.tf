@@ -113,7 +113,7 @@ resource "aws_route_table" "cg_pri_rtable" {
 
 resource "aws_route_table_association" "private_tableassc" {
   depends_on     = [aws_route_table.cg_pri_rtable]
-  subnet_id      = aws_subnet.sub_private.*.id
+  subnet_id      = "aws_subnet.sub_private.*.id"
   route_table_id = aws_route_table.cg_pri_rtable.id
 }
 
