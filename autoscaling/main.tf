@@ -206,7 +206,6 @@ resource "aws_security_group" "cicd_priv_sg" {
 #CREATE ALB targeting Web Server ASG
 resource "aws_lb" "cicd_lb" {
   name               = "cicd-lb"
-  internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
   subnets            = ["var.private_subnets"]
