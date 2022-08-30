@@ -209,7 +209,7 @@ resource "aws_lb" "cicd_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
-  subnets            = var.private_subnets
+  subnets            = "var.private_subnets"
 
   enable_deletion_protection = true
 
