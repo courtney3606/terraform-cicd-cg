@@ -205,6 +205,7 @@ resource "aws_security_group" "cicd_priv_sg" {
 
 #CREATE ALB targeting Web Server ASG
 resource "aws_lb" "cicd_lb" {
+count                   = var.private_sn_count
   name               = "cicd-lb"
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
