@@ -9,4 +9,5 @@ variable "private_cidrs" {
 }
 variable "private_sn_count" {
   type = number
+  default = 3
 }
