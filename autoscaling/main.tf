@@ -84,26 +84,12 @@ resource "aws_route_table_association" "public_tableassc" {
 
 
 
-#CREATE Elastic IP to associate with Nat Gateway in the private subnets
-resource "aws_eip" "cg-eip" {
-  vpc = true
-}
-
-#CREATE NAT GATEWAY FOR PRIVATE SUBNETS
-resource "aws_nat_gateway" "pri-natgw1" {
-  depends_on        = [aws_eip.cg-eip]
-  allocation_id     = aws_eip.cg-eip.id
-  connectivity_type = "private"
-  subnet_id         = aws_subnet.sub_private.*.id[count.index]
-}
-
 resource "aws_route_table" "cg_pri_rtable" {
-  depends_on = [aws_nat_gateway.pri-natgw1]
   vpc_id     = aws_vpc.cicd_myvpc.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.pri-natgw1.id
+    gateway_id = aws_internet_gateway.cg_igw.id
   }
 
   tags = {
