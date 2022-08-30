@@ -211,7 +211,7 @@ count                   = var.private_sn_count
   security_groups    = [aws_security_group.cicd_priv_sg.id]
   
   subnet_mapping {
-    subnet_id = "aws_subnet.sub_private[count.index].id"
+    subnet_id =  aws_subnet.sub_public.*.id[count.index]
   }
   
 
@@ -224,7 +224,6 @@ count                   = var.private_sn_count
 
 resource "aws_lb_target_group" "cicd_priv_tg" {
   name        = "cicd-priv-tg"
-  target_type = "alb"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = aws_vpc.cicd_myvpc.id
