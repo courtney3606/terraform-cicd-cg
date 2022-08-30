@@ -18,5 +18,5 @@ variable "max_subnets" {
 }
 
 variable "private_subnets" {
-  type = string
+  type = list(any)
 }

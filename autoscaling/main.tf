@@ -85,7 +85,7 @@ resource "aws_route_table_association" "public_tableassc" {
 
 
 resource "aws_route_table" "cg_pri_rtable" {
-  vpc_id     = aws_vpc.cicd_myvpc.id
+  vpc_id = aws_vpc.cicd_myvpc.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -98,7 +98,7 @@ resource "aws_route_table" "cg_pri_rtable" {
 }
 
 resource "aws_route_table_association" "private_tableassc" {
-  count = var.private_sn_count
+  count          = var.private_sn_count
   subnet_id      = aws_subnet.sub_private.*.id[count.index]
   route_table_id = aws_route_table.cg_pri_rtable.id
 }
@@ -209,7 +209,7 @@ resource "aws_lb" "cicd_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
-  subnets = ["var.private_subnets"]
+  subnets            = ["var.private_subnets"]
 
   enable_deletion_protection = true
 
