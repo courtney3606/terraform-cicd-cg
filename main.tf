@@ -6,5 +6,5 @@ module "autoscaling" {
   max_subnets      = 9
   public_cidrs     = var.public_cidrs
   private_cidrs    = var.private_cidrs
-  private_subnets = var.private_subnets
+  private_subnets  = ["var.private_subnets"]
 }

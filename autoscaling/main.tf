@@ -39,7 +39,7 @@ resource "aws_subnet" "sub_private" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.private_cidrs[count.index]
   availability_zone       = random_shuffle.az_list.result[count.index]
-  private_subnets         = var.private_subnets
+  private_subnets         = ["var.private_subnets"]
   map_public_ip_on_launch = false
 
   tags = {
