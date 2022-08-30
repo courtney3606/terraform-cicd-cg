@@ -209,7 +209,7 @@ resource "aws_lb" "cicd_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
-  subnets            =  ["us-east-1a", "us-east-1b", "us-east-1c"]
+  subnets            =  [for subnet in aws_subnet.sub_private[count.index] : subnet.id]
 
   enable_deletion_protection = true
 
