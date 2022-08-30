@@ -77,7 +77,7 @@ resource "aws_route_table" "cg_pub_rtable" {
 #CREATE route association for  public subnets and route table
 resource "aws_route_table_association" "public_tableassc" {
   count          = var.public_sn_count
-  subnet_id      = "aws_subnet.sub_public[count.index]"
+  subnet_id      = "aws_subnet.sub_public.*.id[count.index]"
   route_table_id = aws_route_table.cg_pub_rtable.id
 }
 
@@ -94,7 +94,7 @@ resource "aws_nat_gateway" "pri-natgw1" {
   depends_on        = [aws_eip.cg-eip]
   allocation_id     = aws_eip.cg-eip.id
   connectivity_type = "private"
-  subnet_id         = "aws_subnet.sub_private[count.index]"
+  subnet_id         = "aws_subnet.sub_private.*.id[count.index]"
 }
 
 resource "aws_route_table" "cg_pri_rtable" {
@@ -113,7 +113,7 @@ resource "aws_route_table" "cg_pri_rtable" {
 
 resource "aws_route_table_association" "private_tableassc" {
   depends_on     = [aws_route_table.cg_pri_rtable]
-  subnet_id      = "aws_subnet.sub_private[count.index"
+  subnet_id      = "aws_subnet.sub_private.*.id[count.index]"
   route_table_id = aws_route_table.cg_pri_rtable.id
 }
 
