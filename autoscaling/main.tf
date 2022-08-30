@@ -39,6 +39,7 @@ resource "aws_subnet" "sub_private" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.private_cidrs[count.index]
   availability_zone       = random_shuffle.az_list.result[count.index]
+  private_subnets = var.private_subnets[count.index]
   map_public_ip_on_launch = false
 
   tags = {
@@ -210,7 +211,7 @@ resource "aws_lb" "cicd_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
-  subnets            =  [for subnet in aws_subnet.sub_private : subnet.id]
+  subnets            =  [for subnet in aws_subnet.private_subnets : subnet.id]
 
   enable_deletion_protection = true
 
