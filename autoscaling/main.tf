@@ -211,7 +211,7 @@ count                   = var.private_sn_count
   security_groups    = [aws_security_group.cicd_priv_sg.id]
   
   subnet_mapping {
-    subnet_id = aws_subnet.sub_private[count.index]
+    subnet_id = aws_subnet.sub_private.*.id[count.index]
   }
   
 
