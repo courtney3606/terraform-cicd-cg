@@ -231,7 +231,7 @@ resource "aws_lb_target_group" "cicd_priv_tg" {
 }
 resource "aws_lb_listener" "cicd_lb_listener" {
 count                   = var.private_sn_count
-  load_balancer_arn = "aws_lb.cicd_lb[count.index]"
+  load_balancer_arn = "aws_lb.cicd_lb[count.index.arn]"
   port              = 80
   protocol          = "TCP"
   default_action {
