@@ -94,7 +94,7 @@ resource "aws_nat_gateway" "pri-natgw1" {
   depends_on        = [aws_eip.cg-eip]
   allocation_id     = aws_eip.cg-eip.id
   connectivity_type = "private"
-  subnet_id         = aws_subnet.sub_private[count.index]
+  subnet_id         = "aws_subnet.sub_private[count.index]"
 }
 
 resource "aws_route_table" "cg_pri_rtable" {
