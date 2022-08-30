@@ -213,6 +213,9 @@ count                   = var.private_sn_count
   subnet_mapping {
     subnet_id =  aws_subnet.sub_public.*.id[count.index]
   }
+  subnet_mapping {
+    subnet_id =  aws_subnet.sub_public.*.id[count.index]
+  }
   
 
   enable_deletion_protection = true
