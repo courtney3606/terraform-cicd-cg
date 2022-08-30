@@ -16,4 +16,5 @@ variable "private_sn_count" {
 variable "max_subnets" {
   type = number
 }
-variable "private_subnets" {}
+variable "private_subnets" {
+}
