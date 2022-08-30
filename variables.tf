@@ -8,6 +8,6 @@ variable "private_cidrs" {
   default = ["10.0.2.0/24", "10.0.4.0/24", "10.0.6.0/24"]
 }
 variable = "private_subnets" {
-  type = list
-  default = aws.subnet.sub_private[count.index]
+  type = string
+  default = "aws.subnet.sub_private[count.index]"
 }
