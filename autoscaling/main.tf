@@ -209,7 +209,7 @@ resource "aws_lb" "cicd_lb" {
   name               = "cicd-lb"
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
-  subnets = ["us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f"]
+  
 
   enable_deletion_protection = true
 
