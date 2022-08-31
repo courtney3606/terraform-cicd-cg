@@ -46,7 +46,7 @@ resource "aws_subnet" "sub_private1" {
 }
 resource "aws_subnet" "sub_private2" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              ="10.0.255.0/24"
+  cidr_block              ="10.0.256.0/24"
   availability_zone       = "us-east-1c"
   map_public_ip_on_launch = false
 
@@ -56,7 +56,7 @@ resource "aws_subnet" "sub_private2" {
 }
 resource "aws_subnet" "sub_private3" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              = "10.0.255.0/24"
+  cidr_block              = "10.0.257.0/24"
   availability_zone       = "us-east-1d"
   map_public_ip_on_launch = false
 
@@ -106,10 +106,7 @@ resource "aws_route_table_association" "public_tableassc" {
 resource "aws_route_table" "cg_pri_rtable" {
   vpc_id = aws_vpc.cicd_myvpc.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.cg_igw.id
-  }
+  route []
 
   tags = {
     Name = "cg_pri_rtable"
@@ -117,7 +114,7 @@ resource "aws_route_table" "cg_pri_rtable" {
 }
 
 resource "aws_route_table_association" "private_tableassc" {
-  gateway_id     = aws_internet_gateway.cg_igw.id
+  gateway_id = aws_internet_gateway.cg_igw.id
   route_table_id = aws_route_table.cg_pri_rtable.id
 }
 
