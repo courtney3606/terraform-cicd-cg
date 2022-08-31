@@ -25,7 +25,7 @@ resource "aws_subnet" "sub_public" {
   count                   = var.public_sn_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.public_cidrs[count.index]
-  availability_zone       = "random_shuffle.az_list[count.index]"
+  availability_zone       = var.availability_zones
   map_public_ip_on_launch = true
 
   tags = {
@@ -38,7 +38,7 @@ resource "aws_subnet" "sub_private" {
   count                   = var.private_sn_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.private_cidrs[count.index]
-  availability_zone      = "random_shuffle.az_list[count.index]"
+  availability_zone       = var.availability_zones
   map_public_ip_on_launch = false
 
   tags = {
@@ -205,16 +205,16 @@ resource "aws_security_group" "cicd_priv_sg" {
 
 #CREATE ALB targeting Web Server ASG
 resource "aws_lb" "cicd_lb" {
-count                   = var.private_sn_count
+  count              = var.private_sn_count
   name               = "cicd-lb"
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
-  
+
   subnet_mapping {
-    subnet_id =  aws_subnet.sub_public.*.id[count.index]
+    subnet_id = aws_subnet.sub_public.*.id[count.index]
   }
 
-  
+
 
   enable_deletion_protection = true
 
@@ -224,13 +224,13 @@ count                   = var.private_sn_count
 }
 
 resource "aws_lb_target_group" "cicd_priv_tg" {
-  name        = "cicd-priv-tg"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.cicd_myvpc.id
+  name     = "cicd-priv-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.cicd_myvpc.id
 }
 resource "aws_lb_listener" "cicd_lb_listener" {
-count                   = var.private_sn_count
+  count             = var.private_sn_count
   load_balancer_arn = aws_lb.cicd_lb[count.index].arn
   port              = 80
   protocol          = "HTTP"
