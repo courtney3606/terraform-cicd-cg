@@ -25,7 +25,7 @@ resource "aws_subnet" "sub_public" {
   count                   = var.public_sn_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.public_cidrs[count.index]
-  availability_zone       = "us-east-1a"
+  availability_zone       = "us-east-1"
   map_public_ip_on_launch = true
 
   tags = {
@@ -38,7 +38,7 @@ resource "aws_subnet" "sub_private" {
   count                   = var.private_sn_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.private_cidrs[count.index]
-  availability_zone       = "us-west-1a"
+  availability_zone       = "us-east-1"
   map_public_ip_on_launch = false
 
   tags = {
@@ -209,12 +209,7 @@ resource "aws_lb" "cicd_lb" {
   name               = "cicd-lb"
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
-
-  subnet_mapping {
-    subnet_id = aws_subnet.sub_public.*.id[count.index]
-  }
-
-
+  subnets = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f"]
 
   enable_deletion_protection = true
 
