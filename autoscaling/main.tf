@@ -46,7 +46,7 @@ resource "aws_subnet" "sub_private1" {
 }
 resource "aws_subnet" "sub_private2" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              ="10.0.255.1/24"
+  cidr_block              ="10.0.255.0/24"
   availability_zone       = "us-east-1c"
   map_public_ip_on_launch = false
 
@@ -56,7 +56,7 @@ resource "aws_subnet" "sub_private2" {
 }
 resource "aws_subnet" "sub_private3" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              = "10.0.255.2/24"
+  cidr_block              = "10.0.255.0/24"
   availability_zone       = "us-east-1d"
   map_public_ip_on_launch = false
 
