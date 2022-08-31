@@ -25,7 +25,7 @@ resource "aws_subnet" "sub_public" {
   count                   = var.public_sn_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.public_cidrs[count.index]
-  availability_zone       = "var.availability_zones"
+  availability_zone       = "var.availability_zones[count.index]"
   map_public_ip_on_launch = true
 
   tags = {
@@ -38,7 +38,7 @@ resource "aws_subnet" "sub_private" {
   count                   = var.private_sn_count
   vpc_id                  = aws_vpc.cicd_myvpc.id
   cidr_block              = var.private_cidrs[count.index]
-  availability_zone       = "var.availability_zones"
+  availability_zone       = "var.availability_zones[count.index]"
   map_public_ip_on_launch = false
 
   tags = {
