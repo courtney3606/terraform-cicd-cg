@@ -36,7 +36,7 @@ resource "aws_subnet" "sub_public" {
 #CREATE 3 private subnets in different AZ's
 resource "aws_subnet" "sub_private1" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              = "10.0.255.0/24"
+  cidr_block              = "10.0.7.0/24"
   availability_zone       = "us-east-1b"
   map_public_ip_on_launch = false
 
@@ -46,7 +46,7 @@ resource "aws_subnet" "sub_private1" {
 }
 resource "aws_subnet" "sub_private2" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              ="10.0.256.0/24"
+  cidr_block              ="10.0.8.0/24"
   availability_zone       = "us-east-1c"
   map_public_ip_on_launch = false
 
@@ -56,7 +56,7 @@ resource "aws_subnet" "sub_private2" {
 }
 resource "aws_subnet" "sub_private3" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              = "10.0.257.0/24"
+  cidr_block              = "10.0.9.0/24"
   availability_zone       = "us-east-1d"
   map_public_ip_on_launch = false
 
@@ -65,7 +65,24 @@ resource "aws_subnet" "sub_private3" {
   }
 }
 
-
+#CREATE Elastic IP to associate with Nat Gateway in the private subnets
+resource "aws_eip" "cg-eip" {
+  vpc      = true
+} 
+ 
+ #CREATE NAT GATEWAY FOR PRIVATE SUBNETS
+ resource "aws_nat_gateway" "pri-natgw1" {
+  connectivity_type = "private"
+  subnet_id         = aws_subnet.sub_private1.id
+}
+ resource "aws_nat_gateway" "pri-natgw2" {
+  connectivity_type = "private"
+  subnet_id         = aws_subnet.sub_private2.id
+}
+ resource "aws_nat_gateway" "pri-natgw3" {
+  connectivity_type = "private"
+  subnet_id         = aws_subnet.sub_private3.id
+}
 
 #CREATE an Internet Gateway that connects to the web/public tier for the VPC
 resource "aws_internet_gateway" "cg_igw" {
@@ -105,17 +122,25 @@ resource "aws_route_table_association" "public_tableassc" {
 
 resource "aws_route_table" "cg_pri_rtable" {
   vpc_id = aws_vpc.cicd_myvpc.id
-
-  route = []
-
+route {
+    cidr_block = "10.0.7.0/24"  
+    nat_gateway_id = aws_nat_gateway.pri-natgw1.id
+    
+  }
+  
+ route {
+    cidr_block = "10.0.8.0/24" 
+    nat_gateway_id = aws_nat_gateway.pri-natgw2.id
+  }
+  route {
+    cidr_block = "10.0.9.0/24" 
+    nat_gateway_id = aws_nat_gateway.pri-natgw4.id
+  }
+  
+  
   tags = {
     Name = "cg_pri_rtable"
   }
-}
-
-resource "aws_route_table_association" "private_tableassc" {
-  gateway_id = aws_internet_gateway.cg_igw.id
-  route_table_id = aws_route_table.cg_pri_rtable.id
 }
 
 #autoscaling group for web server
