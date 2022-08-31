@@ -16,7 +16,3 @@ variable "private_sn_count" {
 variable "max_subnets" {
   type = number
 }
-variable "availability_zones" {
-  type    = list(any)
-  default = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f"]
-}
