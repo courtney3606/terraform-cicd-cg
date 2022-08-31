@@ -134,7 +134,7 @@ route {
   }
   route {
     cidr_block = "10.0.9.0/24" 
-    nat_gateway_id = aws_nat_gateway.pri-natgw4.id
+    nat_gateway_id = aws_nat_gateway.pri-natgw3.id
   }
   
   
