@@ -36,7 +36,7 @@ resource "aws_subnet" "sub_public" {
 #CREATE 3 private subnets in different AZ's
 resource "aws_subnet" "sub_private1" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              = var.private_cidrs
+  cidr_block              = "var.private_cidrs"
   availability_zone       = "us-east-1b"
   map_public_ip_on_launch = false
 
@@ -46,7 +46,7 @@ resource "aws_subnet" "sub_private1" {
 }
 resource "aws_subnet" "sub_private2" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              = var.private_cidrs
+  cidr_block              = "var.private_cidrs"
   availability_zone       = "us-east-1c"
   map_public_ip_on_launch = false
 
@@ -56,7 +56,7 @@ resource "aws_subnet" "sub_private2" {
 }
 resource "aws_subnet" "sub_private3" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              = var.private_cidrs
+  cidr_block              = "var.private_cidrs"
   availability_zone       = "us-east-1d"
   map_public_ip_on_launch = false
 
@@ -117,8 +117,7 @@ resource "aws_route_table" "cg_pri_rtable" {
 }
 
 resource "aws_route_table_association" "private_tableassc" {
-  count          = var.private_sn_count
-  subnet_id      = aws_subnet.sub_private.*.id[count.index]
+  subnet_id      = aws_subnet.sub_private[*].id
   route_table_id = aws_route_table.cg_pri_rtable.id
 }
 
