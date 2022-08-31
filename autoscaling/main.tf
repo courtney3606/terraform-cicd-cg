@@ -34,15 +34,34 @@ resource "aws_subnet" "sub_public" {
 }
 
 #CREATE 3 private subnets in different AZ's
-resource "aws_subnet" "sub_private" {
-  count                   = var.private_sn_count
+resource "aws_subnet" "sub_private1" {
   vpc_id                  = aws_vpc.cicd_myvpc.id
-  cidr_block              = var.private_cidrs[count.index]
+  cidr_block              = var.private_cidrs
+  availability_zone       = "us-east-1b"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "sub_private1"
+  }
+}
+resource "aws_subnet" "sub_private2" {
+  vpc_id                  = aws_vpc.cicd_myvpc.id
+  cidr_block              = var.private_cidrs
+  availability_zone       = "us-east-1c"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "sub_private2"
+  }
+}
+resource "aws_subnet" "sub_private3" {
+  vpc_id                  = aws_vpc.cicd_myvpc.id
+  cidr_block              = var.private_cidrs
   availability_zone       = "us-east-1d"
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "sub_private_${count.index + 1}"
+    Name = "sub_private3"
   }
 }
 
@@ -205,10 +224,23 @@ resource "aws_security_group" "cicd_priv_sg" {
 
 #CREATE ALB targeting Web Server ASG
 resource "aws_lb" "cicd_lb" {
-  count              = var.private_sn_count
   name               = "cicd-lb"
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
+  
+  subnet_mapping {
+    subnet_id            = aws_subnet.sub_private1.id
+  }
+
+  subnet_mapping {
+    subnet_id            = aws_subnet.sub_private2.id
+  }
+  subnet_mapping {
+    subnet_id            = aws_subnet.sub_private3.id
+  
+  }
+
+  }
   
 
   enable_deletion_protection = true
@@ -225,8 +257,7 @@ resource "aws_lb_target_group" "cicd_priv_tg" {
   vpc_id   = aws_vpc.cicd_myvpc.id
 }
 resource "aws_lb_listener" "cicd_lb_listener" {
-  count             = var.private_sn_count
-  load_balancer_arn = aws_lb.cicd_lb[count.index].arn
+  load_balancer_arn = aws_lb.cicd_lb.arn
   port              = 80
   protocol          = "HTTP"
   default_action {
