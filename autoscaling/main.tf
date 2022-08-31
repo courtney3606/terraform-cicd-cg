@@ -106,7 +106,7 @@ resource "aws_route_table_association" "public_tableassc" {
 resource "aws_route_table" "cg_pri_rtable" {
   vpc_id = aws_vpc.cicd_myvpc.id
 
-  route []
+  route = []
 
   tags = {
     Name = "cg_pri_rtable"
