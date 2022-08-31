@@ -227,21 +227,21 @@ resource "aws_lb" "cicd_lb" {
   name               = "cicd-lb"
   load_balancer_type = "application"
   security_groups    = [aws_security_group.cicd_priv_sg.id]
-  
+
   subnet_mapping {
-    subnet_id            = aws_subnet.sub_private1.id
+    subnet_id = aws_subnet.sub_private1.id
   }
 
   subnet_mapping {
-    subnet_id            = aws_subnet.sub_private2.id
+    subnet_id = aws_subnet.sub_private2.id
   }
   subnet_mapping {
-    subnet_id            = aws_subnet.sub_private3.id
-  
-  }
+    subnet_id = aws_subnet.sub_private3.id
 
   }
-  
+
+
+
 
   enable_deletion_protection = true
 
